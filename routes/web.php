@@ -14,3 +14,4 @@ Route::put('/usuario/{id}', [UsuarioController::class, 'update']);
 
 Route::get('/mensagens/{id}', [MensagemController::class, 'index']);
 Route::post('/mensagens', [MensagemController::class, 'store']);
+Route::put('/mensagens/{id}', [MensagemController::class, 'update']);

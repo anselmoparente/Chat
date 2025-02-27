@@ -70,14 +70,16 @@ async function updatePosition() {
 
         userConfirmed.value = User.fromJson(response.data.user);
 
-        alert('Posição atualizada!');
+        fetchUsers();
+        checkMessages();
     } catch (error) {
         alert('Erro ao atualizar posição. Tente novamente.');
     }
 }
 
-
 async function getMessages() {
+    checkMessages();
+
     const response = await axios.get(`/mensagens/${userConfirmed.value?.id}`);
 
     messages.value = response.data.map((message: any) => Mensagem.fromJson(message));
@@ -99,19 +101,61 @@ async function sendMessage() {
     }
 }
 
+async function checkMessages() {
+    const aux: number[] = users.value.filter(user => {
+        const distancia = haversineDistance(
+            userConfirmed.value?.latitude ?? '',
+            userConfirmed.value?.longitude ?? '',
+            user.latitude,
+            user.longitude
+        );
+        return distancia < 200;
+    }).map(user => user.id);
+
+    if (aux.length > 0) {
+        updateMessages(aux)
+    }
+
+}
+
+async function updateMessages(ids: number[]) {
+    try {
+        await axios.put(`/mensagens/${userConfirmed.value?.id}`, {
+            usuarios_ids: ids,
+        });
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 async function fetchUsers() {
     try {
         const response = await axios.get('/usuarios', {
             params: { nome: userName.value }
         });
 
-        users.value = response.data.map((user: any) => User.fromJson(user));
+        users.value = response.data.map((user: any) => User.fromJson(user)).filter(user => {
+            const distancia = haversineDistance(
+                userConfirmed.value?.latitude ?? '',
+                userConfirmed.value?.longitude ?? '',
+                user.latitude,
+                user.longitude
+            );
+            return distancia < 200;
+        });
+
+        if (!users.value.some(user => user.id === selectedUser.value?.id)) {
+            selectedUser.value = undefined;
+        }
     } catch (error) {
         console.error('Erro ao buscar usuários:', error);
     }
 }
 
-onMounted(() => { })
+onMounted(() => {
+    setInterval(fetchUsers, 10000);
+})
 </script>
 
 <template>
