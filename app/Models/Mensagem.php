@@ -14,7 +14,8 @@ class Mensagem extends Model
     protected $fillable = [
         'texto',
         'usuario_envio_id',
-        'usuario_recebimento_id'
+        'usuario_recebimento_id',
+        'near',
     ];
 
     public function usuarioEnvio()

@@ -2,13 +2,10 @@
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { User } from "../../models/user";
+import { Mensagem } from '../../models/Mensagem';
 
 
-const chats = ref([
-    { id: 1, name: 'João', lastMessage: 'Oi, tudo bem?', messages: [{ id: 1, text: 'Oi!', sent: true }] },
-    { id: 2, name: 'Maria', lastMessage: 'Vamos nos encontrar?', messages: [{ id: 1, text: 'Claro!', sent: false }] },
-]);
-
+const messages = ref<Mensagem[]>([]);
 const users = ref<User[]>([]);
 const userConfirmed = ref<User>();
 const selectedUser = ref<User>();
@@ -19,11 +16,7 @@ const longitude = ref('');
 
 function selectUser(user: User) {
     selectedUser.value = user;
-
-
 }
-
-function sendMessage() { }
 
 function haversineDistance(lat1: string, lon1: string, lat2: string, lon2: string): number {
     const toRadians = (degrees: number) => degrees * (Math.PI / 180);
@@ -67,7 +60,7 @@ async function confirmUser() {
 
 async function updatePosition() {
     try {
-        const response = await axios.post(`/usuario/${userConfirmed.value?.id}`, {
+        const response = await axios.put(`/usuario/${userConfirmed.value?.id}`, {
             nome: userName.value,
             latitude: latitude.value,
             longitude: longitude.value
@@ -78,6 +71,29 @@ async function updatePosition() {
         alert('Posição atualizada!');
     } catch (error) {
         alert('Erro ao atualizar posição. Tente novamente.');
+    }
+}
+
+
+async function getMessages() {
+    const response = await axios.get(`/mensagens/${userConfirmed.value?.id}`);
+
+    messages.value = response.data.map((message: any) => Mensagem.fromJson(message));
+}
+
+async function sendMessage() {
+    try {
+        const distance: number = haversineDistance(userConfirmed.value?.latitude ?? '', userConfirmed.value?.longitude ?? '', selectedUser.value?.latitude ?? '', selectedUser.value?.longitude ?? '');
+        await axios.post(`/mensagens`, {
+            texto: message.value,
+            usuario_envio_id: userConfirmed.value?.id,
+            usuario_recebimento_id: selectedUser.value?.id,
+            near: distance < 200 ? true : false,
+        });
+
+        getMessages();
+    } catch (error) {
+        alert('Erro ao enviar mensagem. Tente novamente.');
     }
 }
 
@@ -128,10 +144,10 @@ onMounted(() => { })
                 <h2>{{ selectedUser.nome }}</h2>
             </div>
             <div class="chat-messages">
-                <!-- <div v-for="message in selectedChat.messages" :key="message.id"
-                    :class="{ message: true, sent: message.sent, received: !message.sent }">
-                    <p>{{ message.text }}</p>
-                </div> -->
+                <div v-for="message in messages" :key="message.id"
+                    :class="{ message: true, sent: message.usuario_envio_id == userConfirmed?.id, received: message.usuario_recebimento_id == selectedUser.id }">
+                    <p>{{ message.texto }}</p>
+                </div>
             </div>
             <div class="chat-input">
                 <input v-model="message" @keyup.enter="sendMessage" placeholder="Digite uma mensagem..." />

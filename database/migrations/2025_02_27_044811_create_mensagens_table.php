@@ -16,6 +16,7 @@ return new class extends Migration
             $table->text('texto');
             $table->foreignId('usuario_envio_id')->constrained('usuarios')->onDelete('cascade');
             $table->foreignId('usuario_recebimento_id')->constrained('usuarios')->onDelete('cascade');
+            $table->boolean('near');
             $table->timestamps();
         });
     }
