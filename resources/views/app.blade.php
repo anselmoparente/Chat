@@ -9,7 +9,7 @@ maximum-scale=1.0" />
     @inertiaHead
 </head>
 
-<body>
+<body style="margin: 0; padding: 0;">
     @inertia
 </body>
 

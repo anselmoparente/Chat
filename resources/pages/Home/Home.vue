@@ -131,7 +131,7 @@ function sendMessage() {
 
 .chat-header {
     padding: 20px;
-    background: var(--header-bg);
+    background: #D3D3D3;
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -145,7 +145,7 @@ function sendMessage() {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
-    background: #f0f0f0;
+    background: #FFFAFA;
 }
 
 .message {
@@ -171,14 +171,14 @@ function sendMessage() {
 }
 
 .chat-input {
-    padding: 15px 20px;
+    background: #D3D3D3;
     border-top: 1px solid var(--border-color);
-    background: var(--header-bg);
+    padding: 15px 20px;
 }
 
 .chat-input input {
     width: 100%;
-    padding: 12px 15px;
+    padding: 12px 16px;
     border: 1px solid var(--border-color);
     border-radius: 25px;
     outline: none;
