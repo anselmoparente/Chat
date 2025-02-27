@@ -118,7 +118,12 @@ onMounted(() => { })
     <div class="chat-container">
         <aside class="chat-sidebar">
             <div class="user-info">
-                <h2>Dados do Usuário</h2>
+                <div class="user-info-header">
+                    <h2>Dados do Usuário</h2>
+                    <button @click="fetchUsers" :disabled="userConfirmed == null">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                </div>
                 <form @submit.prevent="userConfirmed ? updatePosition() : confirmUser()">
                     <input v-model="userName" placeholder="Seu nome" required :disabled="userConfirmed != null" />
                     <input v-model="latitude" placeholder="Latitude" required />
@@ -133,7 +138,10 @@ onMounted(() => { })
                     <div class="chat-info">
                         <h3>{{ user.nome }}</h3>
                         <p>
-                            {{ haversineDistance("-3.7243032", "-38.5433832", "-3.7303656", "-38.5726199").toFixed(0)
+                            {{
+                                haversineDistance(
+                                    userConfirmed.latitude, userConfirmed.longitude, user.latitude, user.longitude
+                                ).toFixed(0)
                             }} m
                         </p>
                     </div>
@@ -201,6 +209,43 @@ onMounted(() => { })
     margin-bottom: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
+.user-info-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+
+.user-info-header button {
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    margin: 0;
+    padding: 8px;
+    height: 40px;
+    width: 40px;
+}
+
+.user-info-header button:hover {
+    background: orange;
+    color: white;
+}
+
+.user-info-header button:disabled {
+    cursor: default;
+    background: none;
+    color: black;
+}
+
+.user-info-header span {
+    margin: 0;
+    padding: 0;
+}
+
+
 
 .user-info h2 {
     margin-top: 0;
