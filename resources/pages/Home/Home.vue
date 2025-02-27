@@ -16,6 +16,8 @@ const longitude = ref('');
 
 function selectUser(user: User) {
     selectedUser.value = user;
+
+    getMessages();
 }
 
 function haversineDistance(lat1: string, lon1: string, lat2: string, lon2: string): number {
@@ -145,7 +147,7 @@ onMounted(() => { })
             </div>
             <div class="chat-messages">
                 <div v-for="message in messages" :key="message.id"
-                    :class="{ message: true, sent: message.usuario_envio_id == userConfirmed?.id, received: message.usuario_recebimento_id == selectedUser.id }">
+                    :class="{ message: true, sent: message.usuario_envio_id == userConfirmed?.id, received: message.usuario_envio_id != userConfirmed?.id }">
                     <p>{{ message.texto }}</p>
                 </div>
             </div>
