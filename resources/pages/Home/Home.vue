@@ -28,6 +28,14 @@ function sendMessage() {
     }
 }
 
+function updatePosition() {
+    if (latitude.value && longitude.value) {
+        alert('Posição atualizada!');
+    } else {
+        alert('Por favor, preencha a latitude e longitude.');
+    }
+}
+
 function confirmUser() {
     if (userName.value && latitude.value && longitude.value) {
         userConfirmed.value = true;
@@ -42,10 +50,13 @@ function confirmUser() {
         <aside class="chat-sidebar">
             <div class="user-info">
                 <h2>Dados do Usuário</h2>
-                <input v-model="userName" placeholder="Seu nome" />
-                <input v-model="latitude" placeholder="Latitude" />
-                <input v-model="longitude" placeholder="Longitude" />
-                <button @click="confirmUser" class="confirm-btn">Confirmar</button>
+                <form @submit.prevent="userConfirmed ? updatePosition() : confirmUser()">
+                    <input v-model="userName" placeholder="Seu nome" required :disabled="userConfirmed" />
+                    <input v-model="latitude" placeholder="Latitude" required />
+                    <input v-model="longitude" placeholder="Longitude" required />
+                    <button class="confirm-btn">{{ userConfirmed ? 'Alterar posição' : 'Confirmar' }}</button>
+                </form>
+
             </div>
             <!-- A lista de chats só é exibida após a confirmação -->
             <div v-if="userConfirmed" class="chat-list">
