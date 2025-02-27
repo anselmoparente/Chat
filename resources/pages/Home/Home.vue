@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { User } from "../../models/user";
 
 
@@ -12,7 +12,7 @@ const chats = ref([
 const users = ref<User[]>([]);
 const userConfirmed = ref<User>();
 const selectedUser = ref<User>();
-const newMessage = ref('');
+const message = ref('');
 const userName = ref('');
 const latitude = ref('');
 const longitude = ref('');
@@ -23,23 +23,26 @@ function selectUser(user: User) {
 
 }
 
-// function sendMessage() {
-//     if (newMessage.value.trim() && selectedChat.value) {
-//         selectedChat.value.messages.push({
-//             id: Date.now(),
-//             text: newMessage.value,
-//             sent: true
-//         });
-//         newMessage.value = '';
-//     }
-// }
+function sendMessage() { }
 
-function updatePosition() {
-    if (latitude.value && longitude.value) {
-        alert('Posição atualizada!');
-    } else {
-        alert('Por favor, preencha a latitude e longitude.');
-    }
+function haversineDistance(lat1: string, lon1: string, lat2: string, lon2: string): number {
+    const toRadians = (degrees: number) => degrees * (Math.PI / 180);
+
+    const lat1Num = parseFloat(lat1);
+    const lon1Num = parseFloat(lon1);
+    const lat2Num = parseFloat(lat2);
+    const lon2Num = parseFloat(lon2);
+
+    const R = 6371000;
+    const dLat = toRadians(lat2Num - lat1Num);
+    const dLon = toRadians(lon2Num - lon1Num);
+
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRadians(lat1Num)) * Math.cos(toRadians(lat2Num)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
 }
 
 async function confirmUser() {
@@ -62,6 +65,22 @@ async function confirmUser() {
     }
 }
 
+async function updatePosition() {
+    try {
+        const response = await axios.post(`/usuario/${userConfirmed.value?.id}`, {
+            nome: userName.value,
+            latitude: latitude.value,
+            longitude: longitude.value
+        });
+
+        userConfirmed.value = User.fromJson(response.data.user);
+
+        alert('Posição atualizada!');
+    } catch (error) {
+        alert('Erro ao atualizar posição. Tente novamente.');
+    }
+}
+
 async function fetchUsers() {
     try {
         const response = await axios.get('/usuarios', {
@@ -73,6 +92,8 @@ async function fetchUsers() {
         console.error('Erro ao buscar usuários:', error);
     }
 }
+
+onMounted(() => { })
 </script>
 
 <template>
@@ -93,6 +114,10 @@ async function fetchUsers() {
                 <div v-for="user in users" :key="user.id" class="chat-item" @click="selectUser(user)">
                     <div class="chat-info">
                         <h3>{{ user.nome }}</h3>
+                        <p>
+                            {{ haversineDistance("-3.7243032", "-38.5433832", "-3.7303656", "-38.5726199").toFixed(0)
+                            }} m
+                        </p>
                     </div>
                 </div>
             </div>
@@ -109,7 +134,7 @@ async function fetchUsers() {
                 </div> -->
             </div>
             <div class="chat-input">
-                <!-- <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Digite uma mensagem..." /> -->
+                <input v-model="message" @keyup.enter="sendMessage" placeholder="Digite uma mensagem..." />
             </div>
         </main>
     </div>

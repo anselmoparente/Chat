@@ -9,4 +9,4 @@ Route::resource('/home', HomeController::class)->only(['index']);
 
 Route::get('/usuarios', [UsuarioController::class, 'index']);
 Route::post('/usuarios', [UsuarioController::class, 'store']);
-
+Route::put('/usuario/{id}', [UsuarioController::class, 'update']);

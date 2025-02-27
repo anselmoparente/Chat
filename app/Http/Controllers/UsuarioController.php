@@ -52,4 +52,30 @@ class UsuarioController extends Controller
             'user' => $user,
         ], 201);
     }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'latitude' => 'required|string',
+            'longitude' => 'required|string',
+        ]);
+
+        $user = Usuario::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Usuário não encontrado!',
+            ], 404);
+        }
+
+        $user->update([
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+        ]);
+
+        return response()->json([
+            'message' => 'Localização do usuário atualizada!',
+            'user' => $user,
+        ], 200);
+    }
 }
