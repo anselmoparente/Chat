@@ -45,7 +45,7 @@ function sendMessage() {
             </div>
             <div class="chat-messages">
                 <div v-for="message in selectedChat.messages" :key="message.id"
-                    :class="{ 'sent': message.sent, 'received': !message.sent }">
+                    :class="{ message: true, sent: message.sent, received: !message.sent }">
                     <p>{{ message.text }}</p>
                 </div>
             </div>
