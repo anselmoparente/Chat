@@ -1,32 +1,38 @@
 <script setup lang="ts">
+import axios from 'axios';
 import { ref } from 'vue';
+import { User } from "../../models/user";
+
 
 const chats = ref([
     { id: 1, name: 'João', lastMessage: 'Oi, tudo bem?', messages: [{ id: 1, text: 'Oi!', sent: true }] },
     { id: 2, name: 'Maria', lastMessage: 'Vamos nos encontrar?', messages: [{ id: 1, text: 'Claro!', sent: false }] },
 ]);
 
-const selectedChat = ref(null);
+const users = ref<User[]>([]);
+const userConfirmed = ref<User>();
+const selectedUser = ref<User>();
 const newMessage = ref('');
 const userName = ref('');
 const latitude = ref('');
 const longitude = ref('');
-const userConfirmed = ref(false);
 
-function selectChat(chat) {
-    selectedChat.value = chat;
+function selectUser(user: User) {
+    selectedUser.value = user;
+
+
 }
 
-function sendMessage() {
-    if (newMessage.value.trim() && selectedChat.value) {
-        selectedChat.value.messages.push({
-            id: Date.now(),
-            text: newMessage.value,
-            sent: true
-        });
-        newMessage.value = '';
-    }
-}
+// function sendMessage() {
+//     if (newMessage.value.trim() && selectedChat.value) {
+//         selectedChat.value.messages.push({
+//             id: Date.now(),
+//             text: newMessage.value,
+//             sent: true
+//         });
+//         newMessage.value = '';
+//     }
+// }
 
 function updatePosition() {
     if (latitude.value && longitude.value) {
@@ -36,11 +42,35 @@ function updatePosition() {
     }
 }
 
-function confirmUser() {
+async function confirmUser() {
     if (userName.value && latitude.value && longitude.value) {
-        userConfirmed.value = true;
+        try {
+            const response = await axios.post('/usuarios', {
+                nome: userName.value,
+                latitude: latitude.value,
+                longitude: longitude.value
+            });
+
+            userConfirmed.value = User.fromJson(response.data.user);
+
+            fetchUsers();
+        } catch (error) {
+            alert('Erro ao criar usuário. Tente novamente.' + error);
+        }
     } else {
         alert('Por favor, preencha todos os campos.');
+    }
+}
+
+async function fetchUsers() {
+    try {
+        const response = await axios.get('/usuarios', {
+            params: { nome: userName.value }
+        });
+
+        users.value = response.data.map((user: any) => User.fromJson(user));
+    } catch (error) {
+        console.error('Erro ao buscar usuários:', error);
     }
 }
 </script>
@@ -51,7 +81,7 @@ function confirmUser() {
             <div class="user-info">
                 <h2>Dados do Usuário</h2>
                 <form @submit.prevent="userConfirmed ? updatePosition() : confirmUser()">
-                    <input v-model="userName" placeholder="Seu nome" required :disabled="userConfirmed" />
+                    <input v-model="userName" placeholder="Seu nome" required :disabled="userConfirmed != null" />
                     <input v-model="latitude" placeholder="Latitude" required />
                     <input v-model="longitude" placeholder="Longitude" required />
                     <button class="confirm-btn">{{ userConfirmed ? 'Alterar posição' : 'Confirmar' }}</button>
@@ -60,27 +90,26 @@ function confirmUser() {
             </div>
             <!-- A lista de chats só é exibida após a confirmação -->
             <div v-if="userConfirmed" class="chat-list">
-                <div v-for="chat in chats" :key="chat.id" class="chat-item" @click="selectChat(chat)">
+                <div v-for="user in users" :key="user.id" class="chat-item" @click="selectUser(user)">
                     <div class="chat-info">
-                        <h3>{{ chat.name }}</h3>
-                        <p>{{ chat.lastMessage }}</p>
+                        <h3>{{ user.nome }}</h3>
                     </div>
                 </div>
             </div>
         </aside>
 
-        <main class="chat-window" v-if="selectedChat">
+        <main class="chat-window" v-if="selectedUser">
             <div class="chat-header">
-                <h2>{{ selectedChat.name }}</h2>
+                <h2>{{ selectedUser.nome }}</h2>
             </div>
             <div class="chat-messages">
-                <div v-for="message in selectedChat.messages" :key="message.id"
+                <!-- <div v-for="message in selectedChat.messages" :key="message.id"
                     :class="{ message: true, sent: message.sent, received: !message.sent }">
                     <p>{{ message.text }}</p>
-                </div>
+                </div> -->
             </div>
             <div class="chat-input">
-                <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Digite uma mensagem..." />
+                <!-- <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Digite uma mensagem..." /> -->
             </div>
         </main>
     </div>

@@ -12,18 +12,18 @@ class Mensagem extends Model
     protected $table = 'mensagens';
 
     protected $fillable = [
-        'chat_id',
-        'usuario_id',
-        'mensagem'
+        'texto',
+        'usuario_envio_id',
+        'usuario_recebimento_id'
     ];
 
-    public function chat()
+    public function usuarioEnvio()
     {
-        return $this->belongsTo(Chat::class, 'chat_id');
+        return $this->belongsTo(Usuario::class, 'usuario_envio_id');
     }
 
-    public function usuario()
+    public function usuarioRecebimento()
     {
-        return $this->belongsTo(Usuario::class, 'usuario_id');
+        return $this->belongsTo(Usuario::class, 'usuario_recebimento_id');
     }
 }
