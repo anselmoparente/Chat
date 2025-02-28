@@ -154,7 +154,8 @@ async function fetchUsers() {
 }
 
 onMounted(() => {
-    setInterval(fetchUsers, 10000);
+    setInterval(fetchUsers, 120000);
+    setInterval(getMessages, 1000);
 })
 </script>
 

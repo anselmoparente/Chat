@@ -9,7 +9,7 @@ const io = new Server(server, {
     cors: { origin: "*" }
 });
 
-const users = new Map(); // Armazena as posições dos usuários
+const users = new Map();
 
 const generateRoomId = (user1, user2) => {
     return [user1, user2].sort().join('_');
