@@ -147,6 +147,7 @@ async function fetchUsers() {
 
         if (!users.value.some(user => user.id === selectedUser.value?.id)) {
             selectedUser.value = undefined;
+            messages.value = [];
         }
     } catch (error) {
         console.error('Erro ao buscar usuários:', error);
