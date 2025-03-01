@@ -11,6 +11,16 @@ const io = new Server(server, {
 
 const users = new Map();
 
+const createUser = (socket, { username }) => {
+    if ([...users.values()].some(user => user.username === username)) {
+        socket.emit('error', { message: 'Nome de usuário já em uso' });
+        return;
+    }
+    users.set(socket.id, { username, id: socket.id });
+    console.log(`Usuário criado: ${username} (ID: ${socket.id})`);
+    socket.emit('userCreated', { id: socket.id, username });
+};
+
 const generateRoomId = (user1, user2) => {
     return [user1, user2].sort().join('_');
 };
