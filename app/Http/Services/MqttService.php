@@ -21,7 +21,7 @@ class MqttService
             $this->mqtt->connect();
 
             $this->mqtt->subscribe('usuario/#', function ($topic, $message) {
-                $parts = explode('/', $topic);
+                $parts = \explode('/', $topic);
                 $userId = $parts[1] ?? null;
 
                 if ($userId) {
